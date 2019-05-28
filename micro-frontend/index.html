@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to micro front end</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="src/require1k.js"></script>
+    <script type="text/babel">
+        R('./src/index', (error, exports) => {
+            console.log(error, exports);
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>
