@@ -1,4 +1,5 @@
 let resolved = {};
+let resolvedUrls = [];
 let packages = undefined;
 const packagesLockdotJson = async (options) => {
     if (packages) return packages;
@@ -11,43 +12,48 @@ const packagesLockdotJson = async (options) => {
         if (options.cdn === true) {
             packageUrl = `https://unpkg.com/${name}@${dependency.version}/`;
         }
-        let dependencyJson = await fetch(`${packageUrl}/package.json`).then(r => r.json());
+        let dependencyJson = await fetch(`${packageUrl}/package.json`)
+            .then(r => r.ok ? r.json() : {});
+        let main = dependencyJson.main || `${name.split("/").pop()}.js`;
         dependency.json = dependencyJson;
-        dependency.main = `${packageUrl}/${dependencyJson.main}`;
+        dependency.main = `${packageUrl}/${main}`;
     }
     return (packages = packagesLock);
 };
-const brewquire = async (url, referer, options = {}) => {
+const brewquire = async (url, referer, options = {resolved: []}) => {
+    console.log("brewquire", url, referer);
     let packagesLock = await packagesLockdotJson(options);
-    let dep = url.split("/")[0];
+    const depParts = url.split("/");
+    let dep = depParts[0].startsWith("@") ? `${depParts[0]}/${depParts[1]}` : depParts[0];
     if (packagesLock.dependencies[dep]) {
         return await brewquire(packagesLock.dependencies[dep].main, null, options);
     }
-    let urlParts = `${url.replace(/\.js$/g, "")}.js`.split("/");
-    if (referer) {
-        let refererParts = referer.split("/");
-        while (urlParts[0] === "." || urlParts[0] === "..") {
-            refererParts.pop();
-            urlParts.shift();
-        }
-        urlParts = refererParts.concat(urlParts);
+    let resolvedUrl = url.endsWith(".js") ? url : `${url}.js`;
+    resolvedUrl = referer ? `${referer}/../${resolvedUrl}` : resolvedUrl;
+    resolvedUrl = resolvedUrl.startsWith("http") ? resolvedUrl : `${location}/../${resolvedUrl}`;
+    resolvedUrl = new URL(resolvedUrl).href;
+    if (resolvedUrls.includes(resolvedUrl)) {
+        return resolved[resolvedUrl];
     }
-    let resolvedUrl = urlParts.join("/");
-    if (resolved[resolvedUrl]) return resolved[resolvedUrl];
-    let code = await fetch(resolvedUrl).then(r => r.text());
+    let codeResponse = await fetch(resolvedUrl);
+    if (!codeResponse.ok) {
+        throw `Can not load ${resolvedUrl}`;
+    }
+    let code = await codeResponse.text();
     if (options.transform) code = options.transform(code).code;
     return await (async () => {
         let exports = {};
         let require = async (u) => brewquire(u, resolvedUrl, options);
         try {
-            code = code.replace(/= require/g, "= await require");
-            await new Promise(resolve => {
-                eval(`(async ()=>{${code};resolve()})()`);
+            code = code.replace(/require\(/g, "await require(");
+            await new Promise((resolve, reject) => {
+                eval(`(async ()=>{try{${code};resolve();}catch(e){reject(e)}})()`);
             });
         } catch (e) {
             console.log(`Error parsing ${resolvedUrl}`, e, code);
         }
         resolved[resolvedUrl] = exports;
+        resolvedUrls.push(resolvedUrl);
         return exports;
     })();
 };
