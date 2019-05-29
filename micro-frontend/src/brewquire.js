@@ -5,7 +5,7 @@ const packagesLockdotJson = async (options) => {
     if (packages) return packages;
     let path = options.path || ".";
     let response = await fetch(`${path}/package-lock.json`);
-    let packagesLock = await response.json();
+    let packagesLock = response.ok ? await response.json() : {};
     for (let name in packagesLock.dependencies) {
         const dependency = packagesLock.dependencies[name];
         let packageUrl = `${path}/node_modules/${name}`;
