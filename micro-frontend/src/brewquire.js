@@ -5,7 +5,7 @@ const packagesLockdotJson = async (options) => {
     if (packages) return packages;
     let path = options.path || ".";
     let response = await fetch(`${path}/package-lock.json`);
-    let packagesLock = response.ok ? await response.json() : {};
+    let packagesLock = response.ok ? await response.json() : {dependencies: {}};
     for (let name in packagesLock.dependencies) {
         const dependency = packagesLock.dependencies[name];
         let packageUrl = `${path}/node_modules/${name}`;
@@ -25,7 +25,6 @@ const packagesLockdotJson = async (options) => {
     return (packages = packagesLock);
 };
 const brewquire = async (url, referer, options = {resolved: []}) => {
-    console.log("brewquire", url, referer);
     let packagesLock = await packagesLockdotJson(options);
     const depParts = url.split("/");
     let dep = depParts[0].startsWith("@") ? `${depParts[0]}/${depParts[1]}` : depParts[0];
@@ -34,7 +33,8 @@ const brewquire = async (url, referer, options = {resolved: []}) => {
     }
     let resolvedUrl = url.endsWith(".js") ? url : `${url}.js`;
     resolvedUrl = referer ? `${referer}/../${resolvedUrl}` : resolvedUrl;
-    resolvedUrl = resolvedUrl.startsWith("http") ? resolvedUrl : `${location}/../${resolvedUrl}`;
+    let href = location.href.split('#')[0];
+    resolvedUrl = resolvedUrl.startsWith("http") ? resolvedUrl : `${href}/../${resolvedUrl}`;
     resolvedUrl = new URL(resolvedUrl).href;
     if (resolvedUrls.includes(resolvedUrl)) {
         return resolved[resolvedUrl];
