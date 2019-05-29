@@ -12,11 +12,15 @@ const packagesLockdotJson = async (options) => {
         if (options.cdn === true) {
             packageUrl = `https://unpkg.com/${name}@${dependency.version}/`;
         }
-        let dependencyJson = await fetch(`${packageUrl}/package.json`)
-            .then(r => r.ok ? r.json() : {});
+        dependency.packageUrl = packageUrl;
+        dependency.promise = fetch(`${packageUrl}/package.json`).then(r => r.ok ? r.json() : {});
+    }
+    for (let name in packagesLock.dependencies) {
+        const dependency = packagesLock.dependencies[name];
+        let dependencyJson = await dependency.promise;
         let main = dependencyJson.main || `${name.split("/").pop()}.js`;
         dependency.json = dependencyJson;
-        dependency.main = `${packageUrl}/${main}`;
+        dependency.main = `${dependency.packageUrl}/${main}`;
     }
     return (packages = packagesLock);
 };

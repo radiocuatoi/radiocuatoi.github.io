@@ -11,7 +11,7 @@
                 {presets: ["es2015", ["stage-2", {decoratorsLegacy: true, loose: true}]]}
             );
         };
-        brewquire("./src/index", null, {transform: transform, cdn: true})
+        brewquire("./src/index", null, {transform, cdn: true})
             .then((exports, error) => {
                 console.log(`exports=`, exports);
                 console.log(`error=`, error);

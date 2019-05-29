@@ -1,4 +1,5 @@
 import {customElement, html, LitElement, property} from "lit-element";
+import '@material/mwc-button'
 
 @customElement('test-component')
 export default class TestComponent extends LitElement {
@@ -6,7 +7,10 @@ export default class TestComponent extends LitElement {
     heading = "test";
 
     render() {
-        return html`<h2>${this.heading}</h2>`;
+        return html`
+<h2>${this.heading}</h2>
+<mwc-button>Test</mwc-button>
+`;
     }
 }
 document.body.innerHTML = `
