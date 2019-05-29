@@ -1,5 +1,4 @@
 import {customElement, html, LitElement, property} from "lit-element";
-import '@material/mwc-button'
 
 @customElement('test-component')
 export default class TestComponent extends LitElement {
