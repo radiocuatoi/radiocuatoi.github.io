@@ -2,16 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to micro front end</title>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="src/require1k.js"></script>
-    <script type="text/babel">
-        R('./src/index', (error, exports) => {
-            console.log(error, exports);
-        });
+    <title>Micro Require</title>
+    <script src="https://unpkg.com/@babel/standalone@7.4.5/babel.min.js"></script>
+    <script src="src/brewquire.js"></script>
+    <script>
+        const transform = (code) => {
+            return Babel.transform(code,
+                {presets: ["es2015", ["stage-2", {decoratorsLegacy: true, loose: true}]]}
+            );
+        };
+        brewquire("./src/index", null, {transform: transform, cdn: true})
+            .then((exports, error) => {
+                console.log(`exports=`, exports);
+                console.log(`error=`, error);
+            });
     </script>
 </head>
 <body>
-
+<div id="demo"></div>
 </body>
 </html>
