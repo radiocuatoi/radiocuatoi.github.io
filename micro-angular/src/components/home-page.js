@@ -1,23 +1,17 @@
 import {application} from "../application";
+import {reducer, redux, action} from "../store";
 
-export const test = (name) => {
-    return (targetClass, targetName, descriptor) => {
-        console.log(`test(${name}) targetClass=`, targetClass);
-        console.log(`test(${name}) targetName=`, targetName);
-        console.log(`test(${name}) descriptor=`, descriptor);
-        if (descriptor) return descriptor;
-        return targetClass;
-    }
-};
-
-@test()
+@redux()
 export class HomePage {
-    @test('name')
+    @redux('name')
     name = 'World';
 
-    @test()
-    onClick(event) {
+    @action()
+    clickMenu(event) {
+    }
 
+    @reducer()
+    onMenuClicked(event) {
     }
 }
 
@@ -45,7 +39,7 @@ application.component('homePage', {
         </md-button>
     </div>
 </md-toolbar> 
-<h3 class="name">Hello {{ $ctrl.name }}.</h3>  
+<h3 class="name" ng-click="$ctrl.onClick()">Hello {{ $ctrl.name }}.</h3>  
     `,
     controller: HomePage
 });

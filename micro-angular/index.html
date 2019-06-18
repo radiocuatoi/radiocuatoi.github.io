@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
+  <head>
+    <meta charset="UTF-8" />
     <title>Micro angular base</title>
     <script src="https://unpkg.com/brewquire@0.0.6"></script>
     <script src="https://unpkg.com/@babel/standalone@7"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
     <script>
-        (async () => {
-            let start = new Date().getTime();
-            let exports = await brewquire("./src/index", {
-                cdn: "https://unpkg.com",
-                transform: code => {
-                    return window.Babel.transform(code, {
-                        comments: false,
-                        compact: true,
-                        presets: [
-                            "es2015",
-                            ["stage-2", {decoratorsLegacy: true, loose: true}]
-                        ]
-                    }).code;
-                }
-            });
-            console.log("exports", exports);
-            console.log(`Took ${new Date().getTime() - start}ms`);
-        })();
+      window.process = { env: { NODE_ENV: "PRODUCTION" } };
+      (async () => {
+        let start = new Date().getTime();
+        let exports = await brewquire("./src/index", {
+          cdn: "https://unpkg.com",
+          transform: code => {
+            return window.Babel.transform(code, {
+              comments: false,
+              compact: true,
+              presets: [
+                "es2015",
+                ["stage-2", { decoratorsLegacy: true, loose: true }]
+              ]
+            }).code;
+          }
+        });
+        console.log("exports", exports);
+        console.log(`Took ${new Date().getTime() - start}ms`);
+      })();
     </script>
-</head>
-<body>
-<home-page></home-page>
-</body>
+  </head>
+  <body>
+    <home-page></home-page>
+  </body>
 </html>
